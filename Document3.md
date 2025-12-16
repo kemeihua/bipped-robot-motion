@@ -1,99 +1,211 @@
 
+奖励函数reward
+奖励设计=“进度+平衡+节能+姿态惩罚”？   平衡/前进/能耗/平滑
+采用“教师-学生”蒸馏或循环策略，可把多个动作片段整合进一个网络，实现行为平滑切换
+安全策略
+
+### 从位置/速度/能耗等角度配置对应奖励
+
+  # ================================= Rewards reference motion tracking========================== #
+'''生存奖励：每个时间步都给予奖励'''
+def _reward_survival(self):
+'''关节位置跟踪奖励'''
+def _reward_joint_pos(self):
+'''足部离地高度奖励'''
+def _reward_feet_clearance(self):
+'''足部离地高度惩罚'''
+def _reward_penalty_feet_clearance(self):
+'''足部高度惩罚'''
+def _reward_penalty_feet_height(self):
+def _reward_feet_swing_height(self):
+def _reward_booster_feet_swing(self):
+def _reward_feet_distance(self):
+def _reward_knee_distance(self):
+def _reward_penalty_close_feet_xy(self):
+def _reward_foot_slip(self):
+def _reward_feet_air_time(self):
+def _reward_osu_feet_air_time(self):
+def _reward_epsh_feet_air_time(self):
+def _reward_feet_contact_number(self):
+def _reward_contact(self):
+def _reward_feet_contact_forces(self):
+def _reward_feet_contact_forces_zj(self):
+def _reward_feet_stance(self):
+def _reward_feet_swing(self):
+# ==================================== base pos  =========================================== #
+def _reward_lin_vel_z(self):
+def _reward_epsh_orientation(self):
+def _reward_epsh_lin_vel_z(self):
+def _reward_epsh_ang_vel_xy(self):
+def _reward_epsh_ang_vel_z(self):
+def _reward_osu_default_joint_pos(self):
+def _reward_osu_hip_pos(self):
+def _reward_hip_pos(self):
+def _reward_default_joint_pos(self):
+def _reward_orientation(self):
+def _reward_base_height(self):
+def _reward_penalty_base_height(self):
+def _reward_base_acc(self):
+def _reward_yaw_roll_pos(self):
+def _reward_ankle_pos(self):
+def _reward_joint_kinematics(self):
+def _reward_penalty_feet_ori(self): 
+def _reward_stand_still(self):
+def _reward_stand_clearance(self):
+def _reward_stand_still_force(self):
+def _reward_joint_regularization(self):
+def  _reward_feet_regularization(self):
+def _reward_foot_mirror_up(self):
+# ==================================== vel tracking  =========================================== #
+def _reward_vel_mismatch_exp(self):
+def _reward_track_vel_hard(self):
+def _reward_tracking_lin_vel(self):
+def _reward_tracking_ang_vel(self):
+def _reward_low_speed(self):
+# ==================================== energy  =========================================== #
+'''扭矩使用惩罚（能量效率）'''
+def _reward_torques(self):
+def _reward_dof_vel(self):
+def _reward_dof_acc(self):
+'''动作平滑性奖励'''
+def _reward_action_smoothness(self):
+def _reward_joint_power(self):
+def _reward_power_distribution(self):
+def _reward_collision(self):
+def _reward_epsh_energy(self):
+def _reward_epsh_action_rate(self):
+def _reward_epsh_feet_force_symm(self):
+# ==================================== energy  =========================================== #
+'''关节位置限制惩罚'''
+def _reward_dof_pos_limits(self):
+def _reward_torque_limits(self):
+def _reward_dof_vel_limits(self):
+def _reward_termination(self):
+def _reward_stumble(self):  
+def _reward_contact_no_vel(self):
+
+奖励函数修改：
+提高机器人脚部高度
+def _reward_feet_clearance(self)
+self.cfg.rewards.feet_height 
+
+修改机器人速度
+ 同步修改奖励def _reward_low_speed(self):提高速度奖励无效果（表现为原地踏步）
+ 
+ 
+ contact 机器人触地奖励
+
+函数名	奖励依据	奖励方式	特点
+_reward_feet_contact_number	接触状态与步态一致性	一致：+1，不一致：-0.3	强调步态协调性
+_reward_contact	前两个足部接触状态与步态一致性	一致：+1，不一致：0	只关注前腿，简单有效
+_reward_feet_contact_forces	接触力大小	超过阈值部分惩罚	防止重踏
+_reward_feet_contact_forces_zj	接触力变化	变化越小奖励越高（指数形式）	鼓励平滑接触
 
 
-https://www.cnblogs.com/emergence/p/19043338
+###不同周期步态对应奖励：
+不同步态周期如：stance phase/swing phase 对应奖励策略 
+self._get_gait_phase()
 
-强化学习/模仿学习/VLA/世界模型/扩散模型
-
-
-https://zhuanlan.zhihu.com/p/1894416052961656917
-模仿学习
-
-
-Retargeting
-    输入人类RGB视频；
-    用计算机视觉工具提取简单人类动作；
-    用RO工具过滤动作，确保真实性；
-    重定向：将过滤后的人类动作转化为G1人形机器人的动作；
-    模拟到真实迁移：将动作部署到真实机器人。
-    
-    
- https://zhuanlan.zhihu.com/p/1975147503319008690
-  人类数据和物理接地
-  通过一层“物理接地”处理，将人类数据转化为物理上可行的形式，就能将学到的策略部署到真实机器人上——比如机器人手完成相同任务、带机械臂的无人机（空中操作器）完成任务、人形机器人完成跑酷或局部操作。
-  从模型基、模型感知到无模型
   
-  模仿和强化学习结合（IRL和MIL）
-  全身控制/舞蹈/步态
+  主流强化学习算法
+  SAC（UC Berkeley）、TD3（McGill）、DDPG（DeepMind）、TRPO（UC Berkeley）、PPO（OpenAI）
+  DSAC
+  强化学习要素：
+  环境/智能体/状态/奖励/动作
+  ppo
+  状态空间 def get_observations(self) def get_privileged_observations(self)
+  动作空间def act(self, obs, critic_obs)
   
- 
   
-  接触动力学
- 模仿学习输入输出：
+  纵向来看，对策略梯度算法的改进，主要针对的就是限制参数迭代的这一步。自然策略梯度算法引入了KL散度约束，TRPO利用线搜索和改进检查来保证限制下的可行性，PPO则通过clip函数限制了策略可以改变的范围等。
+  
+ 强化学习算法优化： 
+  -网络结构（暂不优化）
+  max_iterations = 3000
+  actor_hidden_dims = [64, 64, 64]
+  critic_hidden_dims = [64, 64, 64]
+  -超参数（统一化）
+  -奖励
+  不同算法对比
+    TD3：适用于需要连续动作的复杂控制任务，如机器人控制、自动驾驶等。尤其在高维状态空间下，TD3 可以提供较好的稳定性和性能。
+
+    PPO：适用于多种强化学习环境，包括离散和连续动作空间，广泛用于游戏、模拟和真实环境中的任务。其相对简单的实现和较强的鲁棒性使其适合于快速原型和探索。
+  实际应用
+ 仿真和现实之间的差别
+  
+  
+ppo 
+强化学习跟随机器人参考状态实现如控制（电机扭矩）
+该方法计算机器人参考状态：相位phase和自由度位置dof_pos
+ def compute_ref_state(self):
+ self.ref_dof_pos = torch.zeros_like(self.dof_pos)
  
- 
- https://zhuanlan.zhihu.com/p/1885594346335737231
- 基于运动学约束，从数据集中获取人类动作数据，将其 “重定向” 到适合机器人执行的关节级动作，转换为机器人可执行的运动命令，这些命令包含每个关节的目标位置或姿态变化
- 
- 总结
-所以让机器人学习到跳舞的背后主要步骤包括：
+观测空间/状态空间
+构建观察缓冲区：
+        self.privileged_obs_buf = torch.cat((
+            self.command_input,  # 2 + 3
+            q,  #self.dof_pos 
+            dq, #self.dof_vel
+            self.actions,  # 10 ; 6 for virtual leg
+            self.base_ang_vel * self.obs_scales.ang_vel,  # 3
+            self.base_euler_xyz[:, :2] * self.obs_scales.quat,  # 2  机器人的前两个欧拉角（例如滚转和俯仰）与某个缩放因子相乘实现了对观测值的缩放
 
-数据集构建：通过一套较为昂贵的动作捕捉系统把人编排的舞蹈转化为骨骼各关节点的轨迹图，当然最简单的方法是直接找开源的数据。
-运动命令生成与转换：从数据集中获取人类动作数据，将其 “重定向” 到适合机器人执行的关节级动作，转换为机器人可执行的运动命令，这些命令包含每个关节的目标位置或姿态变化，再输入到基于 Transformer 的编码器中，与机器人的历史感知信息（如当前的关节角度、速度、加速度等）一起生成用于训练的动作序列。
-动作学习：通过模仿学习或强化学习的方法，训练一个用传统PID+EKF难以实现的神经网络，实现一套与预设动作一样的策略控制器。
-仿真到现实迁移：通过领域随机化技术增强训练的鲁棒性，将在仿真环境中学会的计算和输出每个关节扭矩的策略迁移到实际的机器人上进行测试和验证，使机器人能够在真实环境中执行训练时学到的动作。
+            self.base_lin_vel * self.obs_scales.lin_vel,  # 3
+            # self.rand_push_force[:, :2],  # 2
+            # self.rand_push_torque,  # 3
+            self.env_frictions,  # 1
+            self.body_mass / 12.,  # 1   /30
+            stance_mask,  # 2
+            contact_mask,  # 2
+        ), dim=-1)
+        通过连接多个特征（如命令输入、关节位置、速度、动作、基本角速度等）来创建所谓的特权观察缓冲区（privileged_obs_buf），该缓冲区包含了更多的状态信息。
 
-
-重定向数据：直接动捕数据（开源数据效果较差）
-模仿学习：数据处理，设置奖励函数，输出动作（逆强化学习）
-
-机器人舞蹈实现流程：
-主要步骤
-
-    动作捕捉数据获取：
-        使用动作捕捉系统（如 Vicon、OptiTrack 或其他设备）来录制舞者的动作。
-        导出录制数据为常用格式（例如 BVH、FBX、CSV 等）。
-
-    数据预处理：
-        解析捕捉到的数据，去除噪声，进行标准化处理，使数据适应到机器人控制的规格。
-
-    动作映射和重定向：
-        将捕捉的数据映射到机器人的控制空间，可能需要进行插值处理以适应机器人的关节限制和运动学特性。
-        根据机器人模型进行适当的重定向，保持动作的流畅性和自然性。
+        obs_buf = torch.cat((
+            self.command_input,  # 5 = 2D(sin cos) + 3D(vel_x, vel_y, aug_vel_yaw)
+            q,  # 10D
+            dq,  # 10D
+            self.actions,  # 10D
+            self.base_ang_vel * self.obs_scales.ang_vel,  # 3
+            self.base_euler_xyz[:, :2] * self.obs_scales.quat,  # 2
+        ), dim=-1)
         
-    模型设计
-    
-     训练
-     
-    评估与优化
+        该方法用于从给定的动作计算出关节扭矩，是控制代理运动的核心部分。 # pd controller
+	def _compute_torques(self, actions):
+	
+数据流：
+参考状态-智能体计算观测/动作空间-控制计算扭矩
+参考状态/速度（线速度和角速度）
 
-    机器人控制：
-        使用适当的控制算法（如 PID 控制、学习控制或基于观察者的控制策略）来实现机器人的运动。
-    m_torques: motor torques(电机扭矩)
-    q_torques: 关节扭矩（m2j 电机扭矩转关节扭矩 雅可比矩阵）
-   强化学习/模仿学习实现动作输出，通过控制器实现对应扭矩控制。
-      舞蹈使用跟踪控制器
-      
-    实时测试与优化：
-        在仿真环境中对机器人动作进行测试，根据表现进行必要的调整和优化。
+	
+观测空间：关节位置/速度/扭矩/角速度
+动作空间：网络模型输出动作actions和值values
 
 
-1.2 奖励函数推断
+                    actions = self.alg.act(obs, critic_obs)
+                    obs, privileged_obs, rewards, dones, infos = self.env.step(actions)
+                    
+该方法的主要作用是在给定当前观察的情况下，通过 actor_critic 网络计算出代理应当采取的动作以及与之相关的各种信息，如价值、策略的对数概率以及动作的分布参数等。         
+        def act(self, obs, critic_obs):
+        # Compute the actions and values
+        self.transition.actions = self.actor_critic.act(obs).detach()
+        self.transition.values = self.actor_critic.evaluate(critic_obs).detach()
+        self.transition.actions_log_prob = self.actor_critic.get_actions_log_prob(self.transition.actions).detach()
+        self.transition.action_mean = self.actor_critic.action_mean.detach()
+        self.transition.action_sigma = self.actor_critic.action_std.detach()
+        # need to record obs and critic_obs before env.step()
+        self.transition.observations = obs
+        self.transition.critic_observations = critic_obs
+        return self.transition.actions
+        
+        
+        
+        
 
-    将专家的行为建模为一个策略 π∗(a∣s)π∗(a∣s)，表示在状态 ss 下选择动作 aa 的概率。
-    IRL的目标是推断奖励函数 R(s)R(s)，使得专家的策略最大化累积奖励。
-    可以利用相应的强化学习算法生成的价值函数 V(s)V(s) 来反推奖励。
-    
-模仿学习和强化学习结合（逆强化学习）
 
-模仿学习中的课程学习是一种有效的策略，通过分阶段的训练方式，可以提高学习效率和最终的模型性能。通过将复杂任务分解为更小的部分，使得模仿学习过程变得更为高效和可控，从而帮助模型在实际操作环境中展现更好表现。
 
-数据：
-1. 高质量真机采集数据
-2.仿真数据
-3.互联网数据
-
-模仿学习+强化学习+真机数据集实现VLA
-
+                     
+ 
+ 
+ 
 
 
